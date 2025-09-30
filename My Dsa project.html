@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🎬 Movie Recommendation System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body { margin:0; font-family:'Segoe UI',sans-serif; background:url('https://wallpapercave.com/wp/wp7153190.jpg') no-repeat center center fixed; background-size:cover; color:white; }
+
+h2, h3 { color:white; }
+
+.overlay { background:rgba(0,0,0,0.7); min-height:100vh; padding:40px 20px; text-align:center; }
+
+input,button,textarea { padding:10px; font-size:16px; border-radius:6px; border:none; margin:10px 5px; }
+
+input { width:250px; max-width:80%; }
+
+button { background:linear-gradient(to right,#00b4db,#0083b0); color:white; cursor:pointer; }
+
+button:hover { background:linear-gradient(to right,#2193b0,#6dd5ed); }
+
+#output { margin-top:30px; font-size:16px; background:rgba(255,255,255,0.1); padding:20px; border-radius:15px; max-width:700px; margin-left:auto; margin-right:auto; text-align:left; }
+
+#output img { max-width:100%; border-radius:10px; margin-bottom:15px; display:block; }
+
+.button-row { margin-top:10px; }
+
+#recList, #topRatedSection, #statsSection { margin-top:50px; max-width:700px; margin-left:auto; margin-right:auto; background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; text-align:left; }
+
+ul { padding-left:0; list-style:none; }
+
+li { margin:6px 0; display:flex; align-items:center; justify-content:space-between; }
+
+li span { cursor:pointer; font-weight:bold; }
+
+li span:hover { color:#00ffff; text-decoration:underline; }
+
+.remove-btn { background:none; color:#f55; border:none; cursor:pointer; font-size:14px; }
+
+#toast { display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.5); z-index:999; font-size:14px; }
+
+/* PREMIUM LOGIN PAGE */
+#loginOverlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(135deg, #1c1c1c, #000000);
+  display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:1000; color:white;
+}
+
+#loginOverlay h2 {
+  font-size:36px; margin-bottom:20px; color:white; text-shadow:2px 2px 5px rgba(0,0,0,0.7);
+}
+
+#loginOverlay input {
+  padding:14px; margin:10px 0; width:280px; background:#222; border:2px solid #444; border-radius:12px; color:white; font-size:16px;
+}
+
+#loginOverlay input::placeholder { color:rgba(255,255,255,0.5); }
+
+#loginOverlay button {
+  padding:14px 40px; margin-top:15px;
+  background:linear-gradient(to right, #00b4db, #0083b0);
+  border:none; border-radius:30px; color:white; font-size:16px; cursor:pointer; transition:all 0.3s ease;
+}
+
+#loginOverlay button:hover {
+  transform:scale(1.05);
+  background:linear-gradient(to right, #2193b0, #6dd5ed);
+}
+
+#loginOverlay p, #loginOverlay a {
+  color:rgba(255,255,255,0.7);
+  font-size:14px; text-decoration:none;
+}
+
+#loginOverlay a:hover { text-decoration:underline; color:#00ffff; }
+
+#loginForm, #registerForm, #forgotForm {
+  background:#111; padding:30px 40px; border-radius:20px; box-shadow:0 0 20px rgba(0,0,0,0.5);
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* PREMIUM WELCOME PAGE */
+#welcomePage {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,1);
+  display:flex; justify-content:center; align-items:center; flex-direction:column; z-index:999; color:white;
+  font-size:32px; font-weight:bold; text-shadow:2px 2px 5px rgba(0,0,0,0.7);
+  animation:fadeWelcome 2.5s forwards;
+}
+
+#welcomeMessage {
+  text-align:center;
+  padding:20px 40px;
+  font-size:40px;
+  font-weight:bold;
+  color:white;
+}
+@keyframes fadeWelcome {
+  0% { opacity:1; background:rgba(0,0,0,1);}
+  70% { opacity:1; background:rgba(0,0,0,0.7);}
+  100% { opacity:0; background:rgba(0,0,0,0);}
+}
+
+/* FEEDBACK */
+#feedbackSection {
+  margin-top:50px; max-width:600px; margin-left:auto; margin-right:auto;
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 8px 32px rgba(0,0,0,0.37);
+  padding:30px 40px; border-radius:20px; text-align:center;
+}
+
+#feedbackSection h3 { font-size:26px; color:#00ffff; margin-bottom:20px; }
+
+#feedbackSection input, #feedbackSection textarea {
+  width:90%; padding:14px 18px; margin:10px 0;
+  border-radius:12px; border:none; background:rgba(255,255,255,0.07);
+  color:white; font-size:16px;
+}
+
+#feedbackSection input::placeholder, #feedbackSection textarea::placeholder { color:rgba(255,255,255,0.5); }
+
+#feedbackSection button {
+  margin-top:15px; padding:14px 40px; border-radius:30px;
+  background:linear-gradient(90deg, #00b4db, #0083b0);
+  color:white; font-size:16px; border:none; cursor:pointer; transition:all 0.3s ease;
+}
+
+#feedbackSection button:hover {
+  transform:scale(1.05);
+  background:linear-gradient(90deg, #2193b0, #6dd5ed);
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginOverlay">
+  <h2>🎬 Movie Recommendation System</h2>
+  <div id="loginForm">
+    <input id="loginUser" placeholder="Username" />
+    <input id="loginPass" type="password" placeholder="Password" />
+    <button onclick="doLogin()">Login</button>
+    <p style="margin-top:10px;">
+      <a href="#" onclick="showRegister()">Create Account</a> | 
+      <a href="#" onclick="showForgot()">Forgot Password?</a>
+    </p>
+  </div>
+
+  <div id="registerForm" style="display:none;">
+    <h3>Create Account</h3>
+    <input id="newUser" placeholder="Choose username" />
+    <input id="newPass" type="password" placeholder="Choose password" />
+    <input id="securityAnswer" placeholder="Favorite movie?" />
+    <button onclick="register()">Register</button>
+    <p><a href="#" onclick="showLogin()">Back to Login</a></p>
+  </div>
+
+  <div id="forgotForm" style="display:none;">
+    <h3>Reset Password</h3>
+    <input id="forgotUser" placeholder="Your username" />
+    <input id="forgotAnswer" placeholder="Favorite movie?" />
+    <input id="newForgotPass" type="password" placeholder="New password" />
+    <button onclick="resetPassword()">Reset Password</button>
+    <p><a href="#" onclick="showLogin()">Back to Login</a></p>
+  </div>
+</div>
+
+<!-- WELCOME PAGE -->
+<div id="welcomePage" style="display:none;">
+  <div id="welcomeMessage"></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+  <div class="overlay">
+    <h2><i class="fas fa-film"></i> Movie Recommendation System</h2>
+    <input id="searchInput" placeholder="Enter movie title..." />
+    <div class="button-row">
+      <button onclick="searchMovie()"><i class="fas fa-search"></i> Search</button>
+      <button onclick="clearResult()"><i class="fas fa-times-circle"></i> Clear</button>
+      <button onclick="suggestMovie()"><i class="fas fa-lightbulb"></i> Suggest</button>
+    </div>
+
+    <div id="output">🔍 Search results will appear here...</div>
+
+    <div style="margin-top:10px;">
+      <button onclick="likeCurrentMovie()"><i class="fas fa-thumbs-up"></i> Like</button>
+      <button onclick="dislikeCurrentMovie()"><i class="fas fa-thumbs-down"></i> Dislike</button>
+    </div>
+
+    <div id="recList">
+      <h3><i class="fas fa-thumbs-up"></i> Recommended for You</h3>
+      <ul id="recommendations"></ul>
+    </div>
+
+    <div id="topRatedSection">
+      <h3><i class="fas fa-star"></i> IMDb Top Picks</h3>
+      <ul>
+        <li><span onclick="searchMovie('The Shawshank Redemption')">The Shawshank Redemption (9.3)</span></li>
+        <li><span onclick="searchMovie('The Godfather')">The Godfather (9.2)</span></li>
+        <li><span onclick="searchMovie('The Dark Knight')">The Dark Knight (9.0)</span></li>
+      </ul>
+    </div>
+
+    <div id="statsSection">
+      <h3><i class="fas fa-chart-bar"></i> Your Movie Stats</h3>
+      <strong>Liked Movies:</strong>
+      <ul id="likedList"></ul>
+      <strong>Disliked Movies:</strong>
+      <ul id="dislikedList"></ul>
+    </div>
+
+    <div id="feedbackSection">
+      <h3><i class="fas fa-comment-dots"></i> Share Your Feedback</h3>
+      <input id="userName" placeholder="Your Name" />
+      <input id="userCity" placeholder="Your City" />
+      <textarea id="feedbackText" placeholder="Write your feedback here..." rows="4"></textarea>
+      <button onclick="submitFeedback()"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">Toast message</div>
+
+<script>
+const apiKey = '6395858d';
+const movieList=["12 Angry Men","Fight Club","Forrest Gump","Inception","Interstellar","Pulp Fiction","The Dark Knight","The Godfather","The Matrix","Schindler's List","The Shawshank Redemption"];
+
+function showToast(msg){const t=document.getElementById("toast");t.innerText=msg;t.style.display="block";setTimeout(()=>{t.style.display="none";},2000);}
+function searchMovie(c){let t=c||document.getElementById('searchInput').value.trim();if(!t)return;document.getElementById('searchInput').value=t;let o=document.getElementById('output');o.innerHTML="⏳ Searching...";fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(t)}&apikey=${apiKey}`).then(r=>r.json()).then(d=>{if(d.Response==='False'){o.innerHTML=`❌ ${d.Error}`;return;}
+const p=d.Poster!=='N/A'?`<img src="${d.Poster}"/>`:'';const rt=JSON.parse(localStorage.getItem('ratings')||'{}');const cr=rt[d.Title]||0;const sh=[1,2,3,4,5].map(s=>`<span onclick="rateMovie('${d.Title}',${s})" style="cursor:pointer;font-size:20px;color:${s<=cr?'gold':'gray'};">★</span>`).join(' ');o.innerHTML=`${p}<p><strong>${d.Title}</strong> (${d.Year})</p><p><strong>Genre:</strong> ${d.Genre}</p><p><strong>IMDb Rating:</strong> ${d.imdbRating}</p><p><strong>Plot:</strong> ${d.Plot}</p><div><strong>Your Rating:</strong> ${sh}</div><br><a href="https://www.youtube.com/results?search_query=${encodeURIComponent(d.Title+' trailer')}" target="_blank" style="color:#00ffff;">🎞️ Watch Trailer</a>`;}).catch(()=>o.innerHTML='❌ Error fetching movie details');}
+function rateMovie(t,s){let r=JSON.parse(localStorage.getItem('ratings')||'{}');r[t]=(r[t]===s)?0:s;localStorage.setItem('ratings',JSON.stringify(r));searchMovie(t);}
+function likeCurrentMovie(){const t=document.getElementById('searchInput').value.trim();if(!t)return;removeFromList('dislikedMovies',t);addToList('likedMovies',t);showToast(`👍 Liked: ${t}`);getRecommendations();}
+function dislikeCurrentMovie(){const t=document.getElementById('searchInput').value.trim();if(!t)return;removeFromList('likedMovies',t);addToList('dislikedMovies',t);showToast(`👎 Disliked: ${t}`);}
+function addToList(k,t){let l=JSON.parse(localStorage.getItem(k)||"[]");l=l.filter(i=>i.toLowerCase()!==t.toLowerCase());l.push(t);localStorage.setItem(k,JSON.stringify(l));renderStats();}
+function removeFromList(k,t){let l=JSON.parse(localStorage.getItem(k)||"[]");l=l.filter(i=>i.toLowerCase()!==t.toLowerCase());localStorage.setItem(k,JSON.stringify(l));renderStats();}
+function renderStats(){['likedMovies','dislikedMovies'].forEach(k=>{const u=document.getElementById(k==='likedMovies'?'likedList':'dislikedList');u.innerHTML='';(JSON.parse(localStorage.getItem(k)||"[]")).forEach(t=>{u.innerHTML+=`<li><span onclick="searchMovie('${t}')">${t}</span> <button class="remove-btn" onclick="removeFromList('${k}','${t}')"><i class="fas fa-trash"></i></button></li>`;});});}
+async function getRecommendations(){const lm=JSON.parse(localStorage.getItem('likedMovies')||"[]");const rl=document.getElementById('recommendations');rl.innerHTML='';const gs=new Set();for(let m of lm){const r=await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(m)}&apikey=${apiKey}`);const d=await r.json();if(d.Response==='True'){d.Genre.split(',').map(g=>g.trim()).forEach(g=>gs.add(g));}}
+const recs=[];for(let m of movieList){if(lm.includes(m))continue;const r=await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(m)}&apikey=${apiKey}`);const d=await r.json();if(d.Response==='True'){if(d.Genre.split(',').map(g=>g.trim()).some(g=>gs.has(g)))recs.push(m);}}
+if(recs.length===0)rl.innerHTML='<li>No genre-based recommendations found.</li>';else{for(let r of recs){rl.innerHTML+=`<li><span onclick="searchMovie('${r}')">${r}</span></li>`;}}}
+function clearResult(){document.getElementById('searchInput').value='';document.getElementById('output').innerHTML='🔍 Search results will appear here...';}
+function suggestMovie(){const ri=Math.floor(Math.random()*movieList.length);searchMovie(movieList[ri]);}
+function submitFeedback(){const n=document.getElementById('userName').value.trim();const c=document.getElementById('userCity').value.trim();const f=document.getElementById('feedbackText').value.trim();if(!n||!c||!f){showToast("Please fill all fields.");return;}showToast(`Thanks for your feedback, ${n} from ${c}!`);document.getElementById('userName').value='';document.getElementById('userCity').value='';document.getElementById('feedbackText').value='';}
+
+function showLogin(){document.getElementById('loginForm').style.display='block';document.getElementById('registerForm').style.display='none';document.getElementById('forgotForm').style.display='none';}
+function showRegister(){document.getElementById('loginForm').style.display='none';document.getElementById('registerForm').style.display='block';}
+function showForgot(){document.getElementById('loginForm').style.display='none';document.getElementById('forgotForm').style.display='block';}
+function register(){const u=document.getElementById('newUser').value.trim();const p=document.getElementById('newPass').value.trim();const a=document.getElementById('securityAnswer').value.trim();if(!u||!p||!a){alert('Fill all fields');return;}let us=JSON.parse(localStorage.getItem('users')||'{}');if(us[u]){alert('User exists');return;}us[u]={pass:p,ans:a};localStorage.setItem('users',JSON.stringify(us));alert('Account created');showLogin();}
+function doLogin(){const u=document.getElementById('loginUser').value.trim();const p=document.getElementById('loginPass').value.trim();let us=JSON.parse(localStorage.getItem('users')||'{}');if(us[u]&&us[u].pass===p){document.getElementById('loginOverlay').style.display='none';showWelcome(u);}else{alert('Invalid login');}}
+function resetPassword(){const u=document.getElementById('forgotUser').value.trim();const a=document.getElementById('forgotAnswer').value.trim();const np=document.getElementById('newForgotPass').value.trim();let us=JSON.parse(localStorage.getItem('users')||'{}');if(us[u]&&us[u].ans===a){us[u].pass=np;localStorage.setItem('users',JSON.stringify(us));alert('Password reset');showLogin();}else{alert('Wrong details');}}
+
+function showWelcome(u){
+  const h = new Date().getHours();
+  let g = "Good Evening";
+  if(h < 12) g = "Good Morning";
+  else if(h < 18) g = "Good Afternoon";
+
+  const msg = `Welcome! ${g}, ${u}!`;
+  const welcomeDiv = document.getElementById('welcomeMessage');
+  welcomeDiv.innerText = msg;
+
+  const wp = document.getElementById('welcomePage');
+  wp.style.display = 'flex';
+
+  setTimeout(()=>{
+    wp.style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+  },2500);
+}
+
+renderStats();getRecommendations();
+</script>
+
+</body>
+</html>
